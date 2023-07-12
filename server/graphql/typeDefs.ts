@@ -1,6 +1,4 @@
-const { gql } = require("apollo-server")
-
-module.exports = gql`
+export default `#graphql
   type Message {
     text: String
     createdAt: String

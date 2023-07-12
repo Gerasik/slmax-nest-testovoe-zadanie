@@ -1,7 +1,7 @@
-const messagesResolvers = require("./messages")
-const userResolvers = require("./users")
+import messagesResolvers from "./messages"
+import userResolvers from "./users"
 
-module.exports = {
+export default {
   Query: {
     ...messagesResolvers.Query,
     ...userResolvers.Query,

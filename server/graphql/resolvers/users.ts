@@ -1,18 +1,21 @@
-const User = require("../../models/User")
-const { ApolloError } = require("apollo-server-errors")
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcryptjs")
+import User from "../../models/User"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcryptjs"
 
-module.exports = {
+export default {
   Mutation: {
-    async registerUser(_, { registerInput: { username, email, password } }) {
+    async registerUser(
+      _: any,
+      {
+        registerInput: { username, email, password },
+      }: {
+        registerInput: { username: string; email: string; password: string }
+      }
+    ) {
       const oldUser = await User.findOne({ email })
 
       if (oldUser) {
-        throw new ApolloError(
-          "A user is already registered with this email",
-          "USER_ALREADY_CREATED"
-        )
+        throw new Error("A user is already registered with this email")
       }
 
       const encryptedPassword = await bcrypt.hash(password, 10)
@@ -37,7 +40,12 @@ module.exports = {
       }
     },
 
-    async loginUser(_, { loginInput: { email, password } }) {
+    async loginUser(
+      _: any,
+      {
+        loginInput: { email, password },
+      }: { loginInput: { email: string; password: string } }
+    ) {
       const user = await User.findOne({ email })
 
       if (user && (await bcrypt.compare(password, user.password))) {
@@ -59,11 +67,11 @@ module.exports = {
           ...user._doc,
         }
       } else {
-        throw new ApolloError("Incorrect password", "INCORRECT_PASSWORD")
+        throw new Error("Incorrect password")
       }
     },
   },
   Query: {
-    user: async (_, { id }) => await User.findById(id),
+    user: async (_: any, { id }: { id: number }) => await User.findById(id),
   },
 }
