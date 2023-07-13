@@ -6,6 +6,6 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["src", "graphql"],
+  "include": ["src", "src/graphql"],
   "exclude": ["node_modules"]
 }
