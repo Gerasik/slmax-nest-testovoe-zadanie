@@ -7,6 +7,7 @@ export default gql`
     text: String
     createdAt: String
     createdBy: String
+    files: [String]
   }
 
   type User {

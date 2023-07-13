@@ -4,6 +4,7 @@ interface IMessage {
   text: string
   createdAt: string
   createdBy: string
+  file?: string[]
 }
 
 export default class Messages {
