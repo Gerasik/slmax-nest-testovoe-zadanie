@@ -27,6 +27,17 @@ async function startServer() {
     schema,
     csrfPrevention: true,
     cache: "bounded",
+    context: ({ req }) => {
+      // Get the user token from the headers.
+      const token = req.headers.authorization || ""
+      console.log("🚀 ~ file: index.ts:40 ~ startServer ~ token:", token)
+
+      // Try to retrieve a user with the token
+      // const user = getUser(token);
+
+      // Add the user to the context
+      // return { user };
+    },
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
 

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../context/authContext"
 import { useNavigate } from "react-router-dom"
 import { gql, useMutation, useQuery } from "@apollo/client"
+import cl from "classnames"
 
 const MESSAGE_SUBSCRIPTION = gql`
   subscription Subscription {
@@ -54,7 +55,7 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const [newText, setText] = useState("")
   const [messagesByRoom, setMessagesByRoom] = useState<IMessageByRoom>({})
-  console.log("🚀 ~ file: HomePage.tsx:57 ~ messagesByRoom:", messagesByRoom)
+  const [currentRoom, setCurrentRoom] = useState(0)
 
   useEffect(() => {
     if (!user) {
@@ -64,8 +65,6 @@ const HomePage: React.FC = () => {
   const { subscribeToMore, data } = useQuery<{ messages: IMessage[] }>(
     GET_MESSAGES
   )
-
-  const [currentRoom, setCurrentRoom] = useState(0)
 
   const [createMessage] = useMutation(CREATE_MESSAGE)
 
@@ -127,10 +126,6 @@ const HomePage: React.FC = () => {
       setCurrentRoom(newRoom)
     }
   }
-  console.log(
-    "🚀 ~ file: HomePage.tsx:117 ~ createRoom ~ currentRoom:",
-    currentRoom
-  )
 
   return (
     <div className="flex">
@@ -139,7 +134,10 @@ const HomePage: React.FC = () => {
           <button
             onClick={() => createRoom(+key)}
             key={key}
-            className="pointer px-5 py-2 rounded-md border-2 bg-orange-100 hover:bg-orange-400 transition-all"
+            className={cl(
+              "pointer px-5 py-2 rounded-md border-2 bg-orange-100 hover:bg-orange-400 transition-all",
+              { "bg-orange-400": +key === currentRoom }
+            )}
           >
             {key} (messages:{messagesByRoom[+key].length})
           </button>

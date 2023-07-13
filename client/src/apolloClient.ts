@@ -1,12 +1,13 @@
 import {
   ApolloClient,
+  ApolloLink,
+  concat,
   createHttpLink,
   InMemoryCache,
   split,
 } from "@apollo/client"
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions"
 import { createClient } from "graphql-ws"
-import { setContext } from "@apollo/client/link/context"
 import { getMainDefinition } from "@apollo/client/utilities"
 
 const httpLink = createHttpLink({
@@ -19,10 +20,14 @@ const wsLink = new GraphQLWsLink(
   })
 )
 
-const authLink = setContext((_, { header }) => {
-  return {
-    header: { ...header, authorization: localStorage.getItem("token") || "" },
-  }
+const authMiddleware = new ApolloLink((operation, forward) => {
+  const token = localStorage.getItem("token")
+  operation.setContext({
+    headers: {
+      authorization: token ? `Bearer ${token}` : "",
+    },
+  })
+  return forward(operation)
 })
 
 const splitLink = split(
@@ -38,7 +43,7 @@ const splitLink = split(
 )
 
 const client = new ApolloClient({
-  link: authLink.concat(splitLink),
+  link: concat(authMiddleware, splitLink),
   cache: new InMemoryCache(),
 })
 

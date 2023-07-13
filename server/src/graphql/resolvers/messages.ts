@@ -9,7 +9,8 @@ const MESSAGE_CREATED = "MESSAGE_CREATED"
 
 export default {
   Query: {
-    messages() {
+    messages(a: any, b: any, c: any, d: any) {
+      console.log("🚀 ~ file: messages.ts:13 ~ messages ~ a,b,c,d:", c)
       return messages.getAll()
     },
   },
