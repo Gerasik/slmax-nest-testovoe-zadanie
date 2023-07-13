@@ -1,17 +1,17 @@
-import { ApolloServer } from "@apollo/server"
-import { expressMiddleware } from "@apollo/server/express4"
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer"
+import { ApolloServer } from "apollo-server-express"
 import { createServer } from "http"
+import { MongoClient } from "mongodb"
 import express from "express"
+import {
+  ApolloServerPluginDrainHttpServer,
+  ApolloServerPluginLandingPageLocalDefault,
+} from "apollo-server-core"
 import { makeExecutableSchema } from "@graphql-tools/schema"
 import { WebSocketServer } from "ws"
 import { useServer } from "graphql-ws/lib/use/ws"
-import bodyParser from "body-parser"
-import cors from "cors"
 import resolvers from "../graphql/resolvers"
 import typeDefs from "../graphql/typeDefs"
-
-const PORT = 4000
+// import Users from "../models/User"
 
 async function startServer() {
   const schema = makeExecutableSchema({ typeDefs, resolvers })
@@ -23,13 +23,19 @@ async function startServer() {
     server: httpServer,
     path: "/graphql",
   })
-
   const serverCleanup = useServer({ schema }, wsServer)
 
   const server = new ApolloServer({
     schema,
+    csrfPrevention: true,
+    cache: "bounded",
+    // dataSources: () => ({
+    //   users: new Users(),
+    // }),
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
+
+      // Proper shutdown for the WebSocket server.
       {
         async serverWillStart() {
           return {
@@ -39,21 +45,90 @@ async function startServer() {
           }
         },
       },
+      ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     ],
   })
-
   await server.start()
+  server.applyMiddleware({ app })
 
-  app.use("/graphql", cors(), bodyParser.json(), expressMiddleware(server))
-
+  const PORT = 4000
+  // Now that our HTTP server is fully set up, we can listen to it.
   httpServer.listen(PORT, () => {
-    console.log(`Server is now running on http://localhost:${PORT}/graphql`)
+    console.log(
+      `Server is now running on http://localhost:${PORT}${server.graphqlPath}`
+    )
   })
 }
 
 startServer().catch((err) => {
   console.error("Failed to start the server:", err)
 })
+
+// import { ApolloServer } from "@apollo/server"
+// import { expressMiddleware } from "@apollo/server/express4"
+// import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer"
+// import { MongoClient } from 'mongodb'
+// import { createServer } from "http"
+// import express from "express"
+// import { makeExecutableSchema } from "@graphql-tools/schema"
+// import { WebSocketServer } from "ws"
+// import { useServer } from "graphql-ws/lib/use/ws"
+// import bodyParser from "body-parser"
+// import cors from "cors"
+// import resolvers from "../graphql/resolvers"
+// import typeDefs from "../graphql/typeDefs"
+
+// const PORT = 4000
+
+// async function startServer() {
+//   const client = new MongoClient('mongodb://localhost:27017/test')
+// client.connect()
+//   const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+//   const app = express()
+//   const httpServer = createServer(app)
+
+//   const wsServer = new WebSocketServer({
+//     server: httpServer,
+//     path: "/graphql",
+//   })
+
+//   const serverCleanup = useServer({ schema }, wsServer)
+
+//   const server = new ApolloServer({
+//     schema,
+//     plugins: [
+//       ApolloServerPluginDrainHttpServer({ httpServer }),
+//       {
+//         async serverWillStart() {
+//           return {
+//             async drainServer() {
+//               await serverCleanup.dispose()
+//             },
+//           }
+//         },
+//       },
+//     ],
+//     dataSources: () => ({
+//       users: new Users(client.db().collection('users'))
+//       // OR
+//       // users: new Users(UserModel)
+//     })
+
+//   })
+
+//   await server.start()
+
+//   app.use("/graphql", cors(), bodyParser.json(), expressMiddleware(server))
+
+//   httpServer.listen(PORT, () => {
+//     console.log(`Server is now running on http://localhost:${PORT}/graphql`)
+//   })
+// }
+
+// startServer().catch((err) => {
+//   console.error("Failed to start the server:", err)
+// })
 
 // import { ApolloServer } from "@apollo/server"
 // import { expressMiddleware } from "@apollo/server/express4"

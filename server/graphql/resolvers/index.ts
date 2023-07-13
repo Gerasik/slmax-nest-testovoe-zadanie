@@ -10,4 +10,7 @@ export default {
     ...messagesResolvers.Mutation,
     ...userResolvers.Mutation,
   },
+  Subscription: {
+    ...messagesResolvers.Subscription,
+  },
 }

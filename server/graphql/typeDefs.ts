@@ -1,11 +1,16 @@
-export default `#graphql
+import { gql } from "apollo-server-core"
+
+export default gql`
   type Message {
+    id: Int
+    room: Int
     text: String
     createdAt: String
     createdBy: String
   }
 
   type User {
+    id: Int
     username: String
     email: String
     password: String
@@ -15,6 +20,7 @@ export default `#graphql
   input MessageInput {
     text: String
     username: String
+    room: Int!
   }
 
   input RegistryInput {
@@ -29,7 +35,7 @@ export default `#graphql
   }
 
   type Query {
-    message(id: ID!): Message
+    messages: [Message]
     user(id: ID!): User
   }
 
@@ -37,5 +43,9 @@ export default `#graphql
     createMessage(messageInput: MessageInput): Message!
     registerUser(registerInput: RegistryInput): User
     loginUser(loginInput: LoginInput): User
+  }
+
+  type Subscription {
+    messageCreated: Message
   }
 `
