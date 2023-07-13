@@ -5,6 +5,7 @@ import {
   ApolloServerPluginDrainHttpServer,
   ApolloServerPluginLandingPageLocalDefault,
 } from "apollo-server-core"
+import { graphqlUploadExpress } from "graphql-upload-ts"
 import { makeExecutableSchema } from "@graphql-tools/schema"
 import { WebSocketServer } from "ws"
 import { useServer } from "graphql-ws/lib/use/ws"
@@ -25,7 +26,7 @@ async function startServer() {
 
   const server = new ApolloServer({
     schema,
-    csrfPrevention: true,
+    csrfPrevention: false,
     cache: "bounded",
     context: ({ req }) => {
       // Get the user token from the headers.
@@ -54,6 +55,8 @@ async function startServer() {
     ],
   })
   await server.start()
+
+  app.use(graphqlUploadExpress())
   server.applyMiddleware({ app })
 
   const PORT = 4000

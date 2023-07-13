@@ -1,6 +1,14 @@
 import { gql } from "apollo-server-core"
 
 export default gql`
+  scalar Upload
+
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
   type Message {
     id: Int
     room: Int
@@ -44,6 +52,7 @@ export default gql`
     createMessage(messageInput: MessageInput): Message!
     registerUser(registerInput: RegistryInput): User
     loginUser(loginInput: LoginInput): User
+    singleUpload(file: Upload!): File!
   }
 
   type Subscription {
