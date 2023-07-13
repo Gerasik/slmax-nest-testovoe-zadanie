@@ -63,9 +63,7 @@ const AuthContext = createContext<
   IInitialState & { login: (userDate: IUser) => void; logout: () => void }
 >({
   user: null,
-  login: (userData: IUser) => {
-    console.log("12312")
-  },
+  login: (userData: IUser) => {},
   logout: () => {},
 })
 
@@ -73,7 +71,6 @@ const AuthProvider: React.FC<{ children: ReactNode }> = (props) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
 
   const login = (userData: IUser) => {
-    console.log(userData, "adsds")
     localStorage.setItem("token", userData.token ?? "")
     dispatch({
       type: "LOGIN",
